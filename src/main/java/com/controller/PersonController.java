@@ -1,6 +1,8 @@
 package com.controller;
 
 import com.dao.PersonDAO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,19 +13,29 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.model.Person;
 
+import java.util.List;
+
 @Controller
 public class PersonController {
 
+    ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private PersonDAO personDAO;
 	
 	@RequestMapping(value = "/persons", method = RequestMethod.GET)
-	public String listPersons(Model model) {
-		model.addAttribute("person", new Person());
-		model.addAttribute("listPersons", this.personDAO.listPersons());
-		return "person";
-	}
+    public String listPersons(Model model) {
+        model.addAttribute("person", new Person());
+        model.addAttribute("listPersons", this.personDAO.listPersons());
+        return "person";
+    }
+
+    @RequestMapping(value = "/dogs", // consumes = "application/json",produces = "application/json",
+                     method = RequestMethod.GET)
+    public String listPersonsJSON() throws JsonProcessingException{
+        List<Person> personList = this.personDAO.listPersons();
+        return mapper.writeValueAsString(personList);
+    }
 	
 	//For add and update person both
 	@RequestMapping(value= "/person/add", method = RequestMethod.POST)
